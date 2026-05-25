@@ -274,6 +274,165 @@ aside.sidebar-right{
 .list-row:hover .remove{opacity:1}
 .list-row .remove:hover{color:var(--loss)}
 
+/* ============ JOURNAL ============ */
+.journal-summary{
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px 14px;
+}
+.j-stat{display:flex;flex-direction:column;gap:2px}
+.j-stat .lbl{font-size:9px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase}
+.j-stat .val{font-size:13px;color:var(--text);font-variant-numeric:tabular-nums;font-weight:500}
+.j-stat .val.gain{color:var(--gain)}
+.j-stat .val.loss{color:var(--loss)}
+.journal-actions{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  gap:8px;
+}
+.journal-actions .action-btn{flex:1;font-size:10px;padding:6px 10px}
+.journal-section-head{
+  padding:10px 14px 6px;
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:var(--gold-dim);
+  text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+}
+.journal-section-head .count{color:var(--text-dim);font-weight:400}
+.flip-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  gap:4px 10px;
+  font-size:11px;
+}
+.flip-row .name{
+  font-size:12px;color:var(--text);font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  grid-column:1/2;
+}
+.flip-row .signal{
+  grid-column:2/3;
+  font-size:9px;letter-spacing:1.2px;font-weight:600;
+  padding:2px 6px;border:1px solid;border-radius:0;
+  text-align:center;
+  justify-self:end;
+  white-space:nowrap;
+}
+.flip-row .signal.sell{color:#a8d068;border-color:#a8d068}
+.flip-row .signal.cut{color:#e26050;border-color:#e26050}
+.flip-row .signal.hold{color:var(--text-dim);border-color:var(--border-hi)}
+.flip-row .signal.unknown{color:var(--text-dim);border-color:var(--border)}
+.flip-row .legs{
+  grid-column:1/-1;
+  color:var(--text-dim);
+  font-variant-numeric:tabular-nums;
+  font-size:10px;
+}
+.flip-row .legs .gain{color:var(--gain)}
+.flip-row .legs .loss{color:var(--loss)}
+.flip-row .signal-reason{
+  grid-column:1/-1;
+  color:var(--text-dim);
+  font-size:10px;
+  font-style:italic;
+}
+.flip-row .row-actions{
+  grid-column:1/-1;
+  display:flex;
+  gap:6px;
+  margin-top:4px;
+}
+.flip-row .row-actions button{
+  font-size:9px;letter-spacing:1px;padding:3px 8px;
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border);
+  cursor:pointer;
+}
+.flip-row .row-actions button:hover{color:var(--text);border-color:var(--border-hi)}
+.flip-row .row-actions button.danger:hover{color:var(--loss);border-color:var(--loss)}
+.flip-row .row-actions button.primary{color:var(--gold);border-color:var(--gold-dim)}
+.flip-row .row-actions button.primary:hover{color:var(--gold-hi);border-color:var(--gold)}
+
+/* Log-buy / close-flip form */
+.flip-form{display:flex;flex-direction:column;gap:6px}
+.flip-label{
+  font-size:9px;letter-spacing:1.5px;
+  color:var(--text-dim);text-transform:uppercase;
+  margin-top:6px;
+}
+.flip-input{
+  padding:8px 10px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:inherit;
+  font-size:12px;
+  outline:none;
+  font-variant-numeric:tabular-nums;
+}
+.flip-input:focus{border-color:var(--gold-dim)}
+.flip-search-wrap{position:relative}
+.flip-search-dropdown{
+  position:absolute;left:0;right:0;top:100%;
+  background:var(--bg-elev);
+  border:1px solid var(--border-hi);
+  border-top:none;
+  max-height:220px;
+  overflow-y:auto;
+  z-index:10;
+  display:none;
+}
+.flip-search-dropdown.open{display:block}
+.flip-search-dropdown .search-item{
+  padding:7px 10px;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:11px;
+  border-bottom:1px solid var(--border);
+}
+.flip-search-dropdown .search-item:hover,
+.flip-search-dropdown .search-item.active{background:var(--surface)}
+.flip-selected{
+  padding:8px 10px;
+  background:var(--surface);
+  border-left:2px solid var(--gold);
+  font-size:11px;
+  color:var(--text);
+}
+.flip-selected .meta{
+  display:block;color:var(--text-dim);font-size:10px;margin-top:2px;
+  font-variant-numeric:tabular-nums;
+}
+.flip-summary{
+  padding:8px 10px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-mid);
+  font-variant-numeric:tabular-nums;
+  margin-top:4px;
+  line-height:1.6;
+}
+.flip-summary .gain{color:var(--gain)}
+.flip-summary .loss{color:var(--loss)}
+.flip-summary .lbl{color:var(--text-dim);display:inline-block;min-width:110px}
+.flip-actions{
+  display:flex;gap:8px;margin-top:12px;
+  justify-content:flex-end;
+}
+
 /* ============ SCREENER ============ */
 .screener-controls{
   padding:12px 14px;
@@ -809,6 +968,7 @@ aside.sidebar-right{
         <button class="tab active" data-tab="watchlist">WATCHLIST</button>
         <button class="tab" data-tab="screener">SCREENER</button>
         <button class="tab" data-tab="pairs">PAIRS</button>
+        <button class="tab" data-tab="journal">JOURNAL</button>
       </div>
       <div class="tab-content active" id="tab-watchlist">
         <div id="watchlist-content">
@@ -849,6 +1009,11 @@ aside.sidebar-right{
       <div class="tab-content" id="tab-pairs">
         <div id="pairs-content">
           <div class="loading">COMPUTING PAIRS</div>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-journal">
+        <div id="journal-content">
+          <div class="loading">LOADING…</div>
         </div>
       </div>
     </aside>
@@ -1042,6 +1207,55 @@ aside.sidebar-right{
   </div>
 </div>
 
+<div class="modal-backdrop" id="modal-log-buy">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Log a buy</div>
+      <button class="modal-close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="flip-form">
+        <label class="flip-label">ITEM</label>
+        <div class="flip-search-wrap">
+          <input id="flip-item-search" type="text" class="flip-input" placeholder="Search item…" autocomplete="off" />
+          <div class="flip-search-dropdown" id="flip-item-dropdown"></div>
+        </div>
+        <div class="flip-selected" id="flip-selected" style="display:none"></div>
+        <label class="flip-label">QUANTITY</label>
+        <input id="flip-qty" type="number" class="flip-input" min="1" placeholder="e.g. 1000" />
+        <label class="flip-label">BUY PRICE (per unit, gp)</label>
+        <input id="flip-buy-price" type="number" class="flip-input" min="1" placeholder="prefilled from current ask" />
+        <div class="flip-summary" id="flip-buy-summary"></div>
+        <div class="flip-actions">
+          <button class="action-btn" data-close-modal>CANCEL</button>
+          <button class="action-btn primary" id="flip-buy-confirm">LOG BUY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-close-flip">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Close flip</div>
+      <button class="modal-close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="flip-form">
+        <div class="flip-selected" id="flip-close-info"></div>
+        <label class="flip-label">SELL PRICE (per unit, gp)</label>
+        <input id="flip-sell-price" type="number" class="flip-input" min="1" placeholder="prefilled from current bid" />
+        <div class="flip-summary" id="flip-close-summary"></div>
+        <div class="flip-actions">
+          <button class="action-btn" data-close-modal>CANCEL</button>
+          <button class="action-btn primary" id="flip-close-confirm">CLOSE FLIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -1085,6 +1299,7 @@ const state = {
   compareMode: null,       // { aId, bId } when active
   compareSeries: null,     // { a: ts, b: ts }
   watchlist: [],
+  flips: [],
   refreshInterval: null,
 };
 
@@ -1549,6 +1764,335 @@ function updateWatchButton() {
     btn.textContent = '+ WATCH';
     btn.classList.remove('active');
   }
+}
+
+// =============================================================================
+// FLIP JOURNAL
+// =============================================================================
+function flipUid() {
+  return 'f_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+}
+
+async function persistFlips() {
+  await storageSet('flips', state.flips);
+}
+
+function flipNetPerUnit(buyPrice, sellPrice, itemId) {
+  if (sellPrice == null) return null;
+  const tax = geTax(sellPrice, itemId);
+  return (sellPrice - tax) - buyPrice;
+}
+
+function flipNetTotal(f, fallbackSellPrice = null) {
+  const sell = f.sellPrice ?? fallbackSellPrice;
+  const per = flipNetPerUnit(f.buyPrice, sell, f.itemId);
+  return per == null ? null : per * f.qty;
+}
+
+function signalForOpen(f) {
+  const row = state.marketTable.find(r => r.id === f.itemId);
+  if (!row || row.low == null) return { tier: 'unknown', text: 'No live bid' };
+  const bid = row.low;
+  const tax = geTax(bid, f.itemId);
+  const netPerUnit = (bid - tax) - f.buyPrice;
+  const netPct = (netPerUnit / f.buyPrice) * 100;
+  const avg24 = (row.avgHigh24h && row.avgLow24h) ? (row.avgHigh24h + row.avgLow24h) / 2 : null;
+  const elevated = avg24 ? bid > avg24 * 1.02 : false;
+  const depressed = avg24 ? bid < avg24 * 0.98 : false;
+  if (netPct >= 8) return { tier: 'sell', text: `+${netPct.toFixed(1)}% net — strong gain, take profit` };
+  if (netPct >= 3 && elevated) return { tier: 'sell', text: `+${netPct.toFixed(1)}% & above 24h avg — sell into strength` };
+  if (netPct <= -10) return { tier: 'cut', text: `${netPct.toFixed(1)}% — consider cutting` };
+  if (netPct <= -5 && depressed) return { tier: 'hold', text: `${netPct.toFixed(1)}% — price depressed, may rebound` };
+  if (netPct >= 2) return { tier: 'hold', text: `+${netPct.toFixed(1)}% — small gain, hold` };
+  if (netPct >= -2) return { tier: 'hold', text: `${netPct.toFixed(2)}% — neutral` };
+  return { tier: 'hold', text: `${netPct.toFixed(1)}% — minor drawdown` };
+}
+
+function renderJournal() {
+  const container = document.getElementById('journal-content');
+  if (!container) return;
+
+  const open = state.flips.filter(f => f.status === 'open');
+  const closed = state.flips.filter(f => f.status === 'closed')
+    .sort((a, b) => (b.sellTime || 0) - (a.sellTime || 0));
+
+  // Aggregates
+  const realizedAll = closed.reduce((s, f) => s + (flipNetTotal(f) || 0), 0);
+  const cutoff7d = Date.now() / 1000 - 7 * 86400;
+  const realized7d = closed
+    .filter(f => (f.sellTime || 0) >= cutoff7d)
+    .reduce((s, f) => s + (flipNetTotal(f) || 0), 0);
+  const openExposure = open.reduce((s, f) => s + f.buyPrice * f.qty, 0);
+  const wins = closed.filter(f => (flipNetTotal(f) || 0) > 0).length;
+  const winRate = closed.length ? (wins / closed.length) * 100 : null;
+
+  const stat = (lbl, val, cls = '') =>
+    `<div class="j-stat"><span class="lbl">${lbl}</span><span class="val ${cls}">${val}</span></div>`;
+
+  const cls = n => n > 0 ? 'gain' : n < 0 ? 'loss' : '';
+  const summary = `
+    <div class="journal-summary">
+      ${stat('REALIZED P/L', fmtGpFull(realizedAll), cls(realizedAll))}
+      ${stat('7D P/L', fmtGpFull(realized7d), cls(realized7d))}
+      ${stat('OPEN EXPOSURE', fmtGpFull(openExposure))}
+      ${stat('WIN RATE', winRate != null ? fmtNum(winRate, 0) + '% (' + closed.length + ')' : '—')}
+    </div>
+    <div class="journal-actions">
+      <button class="action-btn primary" id="btn-log-buy">+ LOG BUY</button>
+    </div>
+  `;
+
+  // Open positions
+  let openHtml = '';
+  if (open.length) {
+    openHtml = `<div class="journal-section-head">OPEN <span class="count">${open.length}</span></div>`;
+    openHtml += open.map(f => {
+      const row = state.marketTable.find(r => r.id === f.itemId);
+      const bid = row?.low;
+      const sig = signalForOpen(f);
+      const netTotal = bid != null ? flipNetTotal(f, bid) : null;
+      const netCls = netTotal == null ? '' : (netTotal >= 0 ? 'gain' : 'loss');
+      const bidStr = bid != null ? fmtGp(bid) : '—';
+      const buyStr = fmtGp(f.buyPrice);
+      const netStr = netTotal != null
+        ? (netTotal >= 0 ? '+' : '') + fmtGp(netTotal) + ' net'
+        : '—';
+      return `
+        <div class="flip-row">
+          <div class="name" title="${escapeHtml(f.itemName)}">${escapeHtml(f.itemName)}</div>
+          <div class="signal ${sig.tier}">${sig.tier.toUpperCase()}</div>
+          <div class="legs">
+            ${fmtNum(f.qty, 0)} @ ${buyStr} → bid ${bidStr}
+            · <span class="${netCls}">${netStr}</span>
+          </div>
+          <div class="signal-reason">${escapeHtml(sig.text)}</div>
+          <div class="row-actions">
+            <button data-flip-open="${f.itemId}">OPEN CHART</button>
+            <button class="primary" data-flip-close="${f.id}">CLOSE</button>
+            <button class="danger" data-flip-delete="${f.id}">DELETE</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    openHtml = `<div class="journal-section-head">OPEN <span class="count">0</span></div>
+      <div class="watchlist-empty" style="padding:20px 14px">No open positions.<br>Click <strong>+ LOG BUY</strong> to add one.</div>`;
+  }
+
+  // Closed flips
+  let closedHtml = '';
+  if (closed.length) {
+    closedHtml = `<div class="journal-section-head">CLOSED <span class="count">${closed.length}</span></div>`;
+    closedHtml += closed.slice(0, 50).map(f => {
+      const net = flipNetTotal(f);
+      const netCls = net == null ? '' : (net >= 0 ? 'gain' : 'loss');
+      const netStr = net != null
+        ? (net >= 0 ? '+' : '') + fmtGp(net)
+        : '—';
+      const roi = net != null ? (net / (f.buyPrice * f.qty)) * 100 : null;
+      const held = (f.sellTime && f.buyTime)
+        ? Math.max(0, Math.round((f.sellTime - f.buyTime) / 3600))
+        : null;
+      return `
+        <div class="flip-row">
+          <div class="name" title="${escapeHtml(f.itemName)}">${escapeHtml(f.itemName)}</div>
+          <div class="signal ${net >= 0 ? 'sell' : 'cut'}" style="opacity:.85">${netStr}</div>
+          <div class="legs">
+            ${fmtNum(f.qty, 0)} @ ${fmtGp(f.buyPrice)} → ${fmtGp(f.sellPrice)}
+            ${roi != null ? `· <span class="${netCls}">${fmtPct(roi, 2)}</span>` : ''}
+            ${held != null ? `· held ${held < 48 ? held + 'h' : Math.round(held/24) + 'd'}` : ''}
+          </div>
+          <div class="row-actions">
+            <button class="danger" data-flip-delete="${f.id}">DELETE</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    if (closed.length > 50) {
+      closedHtml += `<div class="journal-section-head" style="opacity:.6">+ ${closed.length - 50} older flips not shown</div>`;
+    }
+  }
+
+  container.innerHTML = summary + openHtml + closedHtml;
+
+  // Wire up
+  const btnLog = document.getElementById('btn-log-buy');
+  if (btnLog) btnLog.addEventListener('click', () => openLogBuyModal());
+  container.querySelectorAll('[data-flip-open]').forEach(b =>
+    b.addEventListener('click', () => selectItem(parseInt(b.dataset.flipOpen))));
+  container.querySelectorAll('[data-flip-close]').forEach(b =>
+    b.addEventListener('click', () => openCloseFlipModal(b.dataset.flipClose)));
+  container.querySelectorAll('[data-flip-delete]').forEach(b =>
+    b.addEventListener('click', () => deleteFlip(b.dataset.flipDelete)));
+}
+
+async function deleteFlip(id) {
+  state.flips = state.flips.filter(f => f.id !== id);
+  await persistFlips();
+  renderJournal();
+}
+
+// ---- Log-buy modal ----
+let _logBuyState = { itemId: null, itemName: null };
+
+function openLogBuyModal() {
+  _logBuyState = { itemId: null, itemName: null };
+  document.getElementById('flip-item-search').value = '';
+  document.getElementById('flip-item-dropdown').classList.remove('open');
+  document.getElementById('flip-selected').style.display = 'none';
+  document.getElementById('flip-qty').value = '';
+  document.getElementById('flip-buy-price').value = '';
+  document.getElementById('flip-buy-summary').innerHTML = '';
+  document.getElementById('modal-log-buy').classList.add('open');
+  setTimeout(() => document.getElementById('flip-item-search').focus(), 30);
+}
+
+function updateLogBuySummary() {
+  const qty = parseFloat(document.getElementById('flip-qty').value);
+  const price = parseFloat(document.getElementById('flip-buy-price').value);
+  const el = document.getElementById('flip-buy-summary');
+  if (!_logBuyState.itemId || !qty || !price) { el.innerHTML = ''; return; }
+  const row = state.marketTable.find(r => r.id === _logBuyState.itemId);
+  const limit = row?.limit;
+  const limitWarn = limit && qty > limit
+    ? `<div class="loss">⚠ qty exceeds 4h buy limit (${fmtNum(limit, 0)})</div>` : '';
+  const cost = qty * price;
+  const bid = row?.low;
+  const projNet = bid != null ? ((bid - geTax(bid, _logBuyState.itemId)) - price) * qty : null;
+  const projCls = projNet == null ? '' : (projNet >= 0 ? 'gain' : 'loss');
+  const projStr = projNet != null
+    ? `<span class="${projCls}">${projNet >= 0 ? '+' : ''}${fmtGp(projNet)}</span> at current bid`
+    : '—';
+  el.innerHTML = `
+    <div><span class="lbl">CAPITAL:</span> ${fmtGpFull(cost)}</div>
+    <div><span class="lbl">IF SOLD NOW:</span> ${projStr}</div>
+    ${limitWarn}
+  `;
+}
+
+function setupLogBuyForm() {
+  const search = document.getElementById('flip-item-search');
+  const dropdown = document.getElementById('flip-item-dropdown');
+  const selected = document.getElementById('flip-selected');
+  const qty = document.getElementById('flip-qty');
+  const buyPrice = document.getElementById('flip-buy-price');
+
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    if (q.length < 2) { dropdown.classList.remove('open'); return; }
+    const matches = state.marketTable
+      .filter(r => r.name.toLowerCase().includes(q))
+      .sort((a, b) => (b.vol24h || 0) - (a.vol24h || 0))
+      .slice(0, 10);
+    if (!matches.length) {
+      dropdown.innerHTML = '<div class="search-item" style="color:var(--text-dim)">No matches</div>';
+    } else {
+      dropdown.innerHTML = matches.map(r => `
+        <div class="search-item" data-id="${r.id}">
+          <span>${escapeHtml(r.name)}</span>
+          <span>${fmtGp(r.high)}</span>
+        </div>
+      `).join('');
+      dropdown.querySelectorAll('.search-item[data-id]').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = parseInt(el.dataset.id);
+          const row = state.marketTable.find(r => r.id === id);
+          _logBuyState = { itemId: id, itemName: row.name };
+          const ask = row.high;
+          const bid = row.low;
+          search.value = '';
+          dropdown.classList.remove('open');
+          selected.style.display = 'block';
+          selected.innerHTML = `<strong>${escapeHtml(row.name)}</strong>
+            <span class="meta">ask ${fmtGp(ask)} · bid ${fmtGp(bid)} · 4h lim ${fmtNum(row.limit, 0)}</span>`;
+          if (ask && !buyPrice.value) buyPrice.value = ask;
+          updateLogBuySummary();
+        });
+      });
+    }
+    dropdown.classList.add('open');
+  });
+
+  qty.addEventListener('input', updateLogBuySummary);
+  buyPrice.addEventListener('input', updateLogBuySummary);
+
+  document.getElementById('flip-buy-confirm').addEventListener('click', async () => {
+    if (!_logBuyState.itemId) { toast('Pick an item first', 'error'); return; }
+    const q = parseFloat(qty.value);
+    const p = parseFloat(buyPrice.value);
+    if (!q || q <= 0) { toast('Enter a quantity', 'error'); return; }
+    if (!p || p <= 0) { toast('Enter a buy price', 'error'); return; }
+    const flip = {
+      id: flipUid(),
+      itemId: _logBuyState.itemId,
+      itemName: _logBuyState.itemName,
+      qty: q,
+      buyPrice: p,
+      buyTime: Math.floor(Date.now() / 1000),
+      sellPrice: null,
+      sellTime: null,
+      status: 'open',
+    };
+    state.flips.push(flip);
+    await persistFlips();
+    document.getElementById('modal-log-buy').classList.remove('open');
+    renderJournal();
+    toast('Buy logged', 'success');
+  });
+}
+
+// ---- Close-flip modal ----
+let _closeFlipId = null;
+
+function openCloseFlipModal(flipId) {
+  const f = state.flips.find(x => x.id === flipId);
+  if (!f) return;
+  _closeFlipId = flipId;
+  const row = state.marketTable.find(r => r.id === f.itemId);
+  const bid = row?.low;
+  document.getElementById('flip-close-info').innerHTML =
+    `<strong>${escapeHtml(f.itemName)}</strong>
+     <span class="meta">${fmtNum(f.qty, 0)} bought @ ${fmtGp(f.buyPrice)} · current bid ${bid ? fmtGp(bid) : '—'}</span>`;
+  const sellInput = document.getElementById('flip-sell-price');
+  sellInput.value = bid || '';
+  updateCloseFlipSummary();
+  document.getElementById('modal-close-flip').classList.add('open');
+  setTimeout(() => sellInput.focus(), 30);
+}
+
+function updateCloseFlipSummary() {
+  const f = state.flips.find(x => x.id === _closeFlipId);
+  if (!f) return;
+  const p = parseFloat(document.getElementById('flip-sell-price').value);
+  const el = document.getElementById('flip-close-summary');
+  if (!p || p <= 0) { el.innerHTML = ''; return; }
+  const tax = geTax(p, f.itemId);
+  const netPer = (p - tax) - f.buyPrice;
+  const net = netPer * f.qty;
+  const cls = net >= 0 ? 'gain' : 'loss';
+  const roi = (netPer / f.buyPrice) * 100;
+  el.innerHTML = `
+    <div><span class="lbl">GROSS:</span> ${fmtGpFull(p * f.qty)}</div>
+    <div><span class="lbl">GE TAX:</span> ${fmtGpFull(tax * f.qty)}</div>
+    <div><span class="lbl">NET P/L:</span> <span class="${cls}">${net >= 0 ? '+' : ''}${fmtGpFull(net)}</span> (${fmtPct(roi, 2)})</div>
+  `;
+}
+
+function setupCloseFlipForm() {
+  document.getElementById('flip-sell-price').addEventListener('input', updateCloseFlipSummary);
+  document.getElementById('flip-close-confirm').addEventListener('click', async () => {
+    const f = state.flips.find(x => x.id === _closeFlipId);
+    if (!f) return;
+    const p = parseFloat(document.getElementById('flip-sell-price').value);
+    if (!p || p <= 0) { toast('Enter a sell price', 'error'); return; }
+    f.sellPrice = p;
+    f.sellTime = Math.floor(Date.now() / 1000);
+    f.status = 'closed';
+    await persistFlips();
+    document.getElementById('modal-close-flip').classList.remove('open');
+    renderJournal();
+    toast('Flip closed', 'success');
+  });
 }
 
 // =============================================================================
@@ -2286,6 +2830,9 @@ function setupTabs() {
         computePairs();
         document.getElementById('pairs-content').dataset.loaded = '1';
       }
+      if (tab.dataset.tab === 'journal') {
+        renderJournal();
+      }
     });
   });
 }
@@ -2361,6 +2908,7 @@ async function boot() {
   
   // Load persisted state
   state.watchlist = await storageGet('watchlist', []);
+  state.flips = await storageGet('flips', []);
   const savedIndicators = await storageGet('indicators', null);
   if (savedIndicators) state.indicators = { ...state.indicators, ...savedIndicators };
   const savedPanes = await storageGet('panes', null);
@@ -2388,6 +2936,8 @@ async function boot() {
   setupItemActions();
   setupScreenerHandlers();
   setupModal();
+  setupLogBuyForm();
+  setupCloseFlipForm();
   
   // Fetch data
   try {
@@ -2428,6 +2978,7 @@ async function refreshPrices() {
     state.marketTable = buildMarketTable();
     renderWatchlist();
     renderScreener();
+    if (document.getElementById('tab-journal').classList.contains('active')) renderJournal();
     if (state.selectedId) updateItemInfo();
     document.getElementById('status-text').textContent = 'LIVE · UPDATED ' + new Date().toLocaleTimeString();
   } catch (e) {
