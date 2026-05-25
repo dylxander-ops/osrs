@@ -466,6 +466,32 @@ aside.sidebar-right{
 #chart-macd{height:12.5%;display:none}
 .chart-pane.rsi-active #chart-rsi{display:block}
 .chart-pane.macd-active #chart-macd{display:block}
+.chart-area.compare-mode #chart-main{height:75%}
+.chart-area.compare-mode #chart-volume{display:none}
+.chart-area.compare-mode #chart-rsi{display:none}
+.chart-area.compare-mode #chart-macd{display:block;height:25%}
+.chart-area.compare-mode .toolbar-group.tg-type,
+.chart-area.compare-mode .toolbar-group.tg-overlay,
+.chart-area.compare-mode .toolbar-group.tg-panes{display:none}
+.compare-exit{
+  position:absolute;
+  top:4px;
+  right:10px;
+  z-index:6;
+  display:none;
+  background:#2a2620;
+  color:var(--text);
+  border:1px solid #4a4238;
+  font-family:var(--mono, JetBrains Mono, monospace);
+  font-size:9px;
+  letter-spacing:1.5px;
+  padding:3px 8px;
+  cursor:pointer;
+  text-transform:uppercase;
+}
+.compare-exit:hover{background:#3a342b;border-color:var(--gold-dim)}
+.chart-area.compare-mode .compare-exit{display:block}
+.chart-area.compare-mode .chart-pane-stats{right:110px}
 
 .chart-empty{
   position:absolute;inset:0;
@@ -827,7 +853,7 @@ aside.sidebar-right{
       </div>
     </aside>
 
-    <section class="chart-area">
+    <section class="chart-area" id="chart-area">
       <div class="chart-toolbar">
         <div class="toolbar-group">
           <span class="toolbar-label">TF</span>
@@ -836,13 +862,13 @@ aside.sidebar-right{
           <button class="tf-btn" data-tf="6h">6H</button>
           <button class="tf-btn" data-tf="24h">1D</button>
         </div>
-        <div class="toolbar-group">
+        <div class="toolbar-group tg-type">
           <span class="toolbar-label">TYPE</span>
           <button class="tf-btn" data-view="candle">CANDLE</button>
           <button class="tf-btn active" data-view="spread">SPREAD</button>
           <button class="tf-btn" data-view="line">LINE</button>
         </div>
-        <div class="toolbar-group">
+        <div class="toolbar-group tg-overlay">
           <span class="toolbar-label">OVERLAY</span>
           <button class="indicator-btn" data-ind="sma20">SMA20</button>
           <button class="indicator-btn" data-ind="sma50">SMA50</button>
@@ -850,7 +876,7 @@ aside.sidebar-right{
           <button class="indicator-btn" data-ind="bb">BB</button>
           <button class="indicator-btn" data-ind="vwap">VWAP</button>
         </div>
-        <div class="toolbar-group">
+        <div class="toolbar-group tg-panes">
           <span class="toolbar-label">PANES</span>
           <button class="indicator-btn" data-pane="rsi">RSI</button>
           <button class="indicator-btn" data-pane="macd">MACD</button>
@@ -863,7 +889,8 @@ aside.sidebar-right{
           <div class="hint">Search above or pick from your watchlist, the screener, or pairs panel. Live data from the OSRS Wiki real-time API.</div>
         </div>
         <div class="chart-pane" id="chart-pane">
-          <div class="chart-pane-label">PRICE</div>
+          <div class="chart-pane-label" id="chart-pane-label">PRICE</div>
+          <button type="button" class="compare-exit" id="compare-exit">✕ EXIT COMPARE</button>
           <div class="chart-pane-stats" id="chart-stats"></div>
           <div id="chart-main"></div>
           <div id="chart-volume"></div>
@@ -1055,6 +1082,8 @@ const state = {
   indicators: { sma20:false, sma50:false, ema20:false, bb:false, vwap:false },
   panes: { rsi:false, macd:false },
   timeseries: null,
+  compareMode: null,       // { aId, bId } when active
+  compareSeries: null,     // { a: ts, b: ts }
   watchlist: [],
   refreshInterval: null,
 };
@@ -1438,11 +1467,12 @@ async function computePairs() {
     } catch(e) { /* ignore */ }
   });
   
-  // Click handlers on pair rows: open first leg
+  // Click handlers on pair rows: enter compare mode with both legs
   container.querySelectorAll('.pair-row').forEach(row => {
     row.addEventListener('click', () => {
       const aId = parseInt(row.dataset.pairA);
-      selectItem(aId);
+      const bId = parseInt(row.dataset.pairB);
+      enterCompareMode(aId, bId);
     });
   });
 }
@@ -1903,28 +1933,32 @@ function renderChart() {
 // SELECT ITEM
 // =============================================================================
 async function selectItem(id) {
+  // Selecting any single item exits compare mode
+  if (state.compareMode) exitCompareMode({ rerender: false });
+
   state.selectedId = id;
   state.selectedItem = state.mappingById.get(id);
   if (!state.selectedItem) return;
-  
+
   // Show right sidebar
   document.getElementById('item-info-empty').style.display = 'none';
   document.getElementById('item-info').classList.add('active');
-  
+
   // Show chart, hide empty
   document.getElementById('chart-empty').classList.add('hidden');
-  
+
   // Update right sidebar
   updateItemInfo();
   updateWatchButton();
-  
+
   // Mark active rows
   document.querySelectorAll('.list-row.active').forEach(el => el.classList.remove('active'));
   document.querySelectorAll(`.list-row[data-id="${id}"]`).forEach(el => el.classList.add('active'));
-  
+  document.getElementById('chart-pane-label').textContent = 'PRICE';
+
   // Initialize chart if needed
   if (!charts.main) createMainChart();
-  
+
   // Fetch timeseries
   try {
     const ts = await fetchTimeseries(id, state.timeframe);
@@ -1934,6 +1968,165 @@ async function selectItem(id) {
   } catch(e) {
     toast('Failed to load chart data: ' + e.message, 'error');
   }
+}
+
+// =============================================================================
+// COMPARE MODE (pair overlay)
+// =============================================================================
+async function enterCompareMode(aId, bId) {
+  const aItem = state.mappingById.get(aId);
+  const bItem = state.mappingById.get(bId);
+  if (!aItem || !bItem) return;
+
+  state.compareMode = { aId, bId };
+  state.selectedId = aId;
+  state.selectedItem = aItem;
+
+  document.getElementById('item-info-empty').style.display = 'none';
+  document.getElementById('item-info').classList.add('active');
+  document.getElementById('chart-empty').classList.add('hidden');
+  document.getElementById('chart-area').classList.add('compare-mode');
+
+  updateItemInfo();
+  updateWatchButton();
+
+  document.querySelectorAll('.list-row.active').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll(`.list-row[data-id="${aId}"]`).forEach(el => el.classList.add('active'));
+
+  document.getElementById('chart-pane-label').innerHTML =
+    `<span style="color:#d4a437">●</span> ${escapeHtml(aItem.name)} `
+    + `<span style="color:var(--text-dim)">vs</span> `
+    + `<span style="color:#6b8e9e">●</span> ${escapeHtml(bItem.name)}`;
+
+  if (!charts.main) createMainChart();
+
+  try {
+    const [tsA, tsB] = await Promise.all([
+      fetchTimeseries(aId, state.timeframe),
+      fetchTimeseries(bId, state.timeframe),
+    ]);
+    state.compareSeries = { a: tsA, b: tsB };
+    state.timeseries = tsA;
+    renderCompareChart();
+    updateExtendedStats();
+  } catch(e) {
+    toast('Failed to load compare data: ' + e.message, 'error');
+  }
+}
+
+function exitCompareMode({ rerender = true } = {}) {
+  if (!state.compareMode) return;
+  state.compareMode = null;
+  state.compareSeries = null;
+  document.getElementById('chart-area').classList.remove('compare-mode');
+  document.getElementById('chart-pane-label').textContent = 'PRICE';
+  if (rerender && state.timeseries) renderChart();
+}
+
+function renderCompareChart() {
+  if (!state.compareMode || !state.compareSeries || !charts.main) return;
+
+  const aData = buildSeriesData(state.compareSeries.a);
+  const bData = buildSeriesData(state.compareSeries.b);
+  if (!aData.length || !bData.length) return;
+
+  // Clear existing series across all charts
+  for (const k of Object.keys(series)) {
+    const s = series[k];
+    const chartKey = s._chart || 'main';
+    try { charts[chartKey].removeSeries(s); } catch {}
+  }
+  series = {};
+
+  // Intersection on timestamps
+  const bMap = new Map(bData.map(d => [d.time, d.mid]));
+  const joined = [];
+  for (const d of aData) {
+    const bMid = bMap.get(d.time);
+    if (d.mid != null && bMid != null) {
+      joined.push({ time: d.time, aMid: d.mid, bMid });
+    }
+  }
+  if (!joined.length) {
+    toast('No overlapping data points for this pair at the current timeframe', 'error');
+    return;
+  }
+
+  const baseA = joined[0].aMid;
+  const baseB = joined[0].bMid;
+  const aItem = state.mappingById.get(state.compareMode.aId);
+  const bItem = state.mappingById.get(state.compareMode.bId);
+
+  // Normalized leg A (gold)
+  const aSeries = charts.main.addLineSeries({
+    color: '#d4a437', lineWidth: 2,
+    title: aItem?.name || 'A',
+    priceLineVisible: false, lastValueVisible: true,
+  });
+  aSeries.setData(joined.map(d => ({ time: d.time, value: 100 * d.aMid / baseA })));
+  aSeries._chart = 'main';
+  series.cmpA = aSeries;
+
+  // Normalized leg B (steel blue)
+  const bSeries = charts.main.addLineSeries({
+    color: '#6b8e9e', lineWidth: 2,
+    title: bItem?.name || 'B',
+    priceLineVisible: false, lastValueVisible: true,
+  });
+  bSeries.setData(joined.map(d => ({ time: d.time, value: 100 * d.bMid / baseB })));
+  bSeries._chart = 'main';
+  series.cmpB = bSeries;
+
+  // Baseline (100) reference
+  const baseRef = charts.main.addLineSeries({
+    color: '#3a342b', lineWidth: 1, lineStyle: 2,
+    priceLineVisible: false, lastValueVisible: false,
+  });
+  baseRef.setData([
+    { time: joined[0].time, value: 100 },
+    { time: joined[joined.length-1].time, value: 100 },
+  ]);
+  baseRef._chart = 'main';
+  series.cmpBase = baseRef;
+
+  // Ratio pane (A / B)
+  const ratioSeries = charts.macd.addLineSeries({
+    color: '#e26050', lineWidth: 1.5,
+    title: 'A / B',
+    priceLineVisible: false, lastValueVisible: true,
+  });
+  ratioSeries.setData(joined.map(d => ({ time: d.time, value: d.aMid / d.bMid })));
+  ratioSeries._chart = 'macd';
+  series.cmpRatio = ratioSeries;
+
+  // Mean ratio reference
+  const ratios = joined.map(d => d.aMid / d.bMid);
+  const meanRatio = ratios.reduce((s,x) => s+x, 0) / ratios.length;
+  const meanRef = charts.macd.addLineSeries({
+    color: '#3a342b', lineWidth: 1, lineStyle: 2,
+    priceLineVisible: false, lastValueVisible: false,
+  });
+  meanRef.setData([
+    { time: joined[0].time, value: meanRatio },
+    { time: joined[joined.length-1].time, value: meanRatio },
+  ]);
+  meanRef._chart = 'macd';
+  series.cmpRatioMean = meanRef;
+
+  charts.main.timeScale().fitContent();
+
+  // Stats: % change per leg and ratio change
+  const first = joined[0];
+  const last = joined[joined.length - 1];
+  const aChange = (last.aMid - first.aMid) / first.aMid * 100;
+  const bChange = (last.bMid - first.bMid) / first.bMid * 100;
+  const ratioChange = (last.aMid/last.bMid - first.aMid/first.bMid) / (first.aMid/first.bMid) * 100;
+  const ratioColor = ratioChange >= 0 ? '#a8d068' : '#e26050';
+  document.getElementById('chart-stats').innerHTML = `
+    <span style="color:#d4a437">${escapeHtml(aItem?.name || 'A')}: ${fmtPct(aChange, 2)}</span>
+    <span style="color:#6b8e9e">${escapeHtml(bItem?.name || 'B')}: ${fmtPct(bChange, 2)}</span>
+    <span style="color:${ratioColor}">RATIO Δ: ${fmtPct(ratioChange, 2)}</span>
+  `;
 }
 
 function updateItemInfo() {
@@ -2024,12 +2217,26 @@ function updateExtendedStats() {
 // UI HANDLERS
 // =============================================================================
 function setupToolbar() {
+  const exitBtn = document.getElementById('compare-exit');
+  if (exitBtn) exitBtn.addEventListener('click', () => exitCompareMode());
+
   document.querySelectorAll('.tf-btn[data-tf]').forEach(btn => {
     btn.addEventListener('click', async () => {
       document.querySelectorAll('.tf-btn[data-tf]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.timeframe = btn.dataset.tf;
-      if (state.selectedId) {
+      if (state.compareMode) {
+        try {
+          const [tsA, tsB] = await Promise.all([
+            fetchTimeseries(state.compareMode.aId, state.timeframe),
+            fetchTimeseries(state.compareMode.bId, state.timeframe),
+          ]);
+          state.compareSeries = { a: tsA, b: tsB };
+          state.timeseries = tsA;
+          renderCompareChart();
+          updateExtendedStats();
+        } catch(e) { toast('Failed: ' + e.message, 'error'); }
+      } else if (state.selectedId) {
         try {
           const ts = await fetchTimeseries(state.selectedId, state.timeframe);
           state.timeseries = ts;
