@@ -1627,10 +1627,32 @@ function createMainChart() {
       borderColor: '#2a2620',
       textColor: '#b8ad94',
     },
+    localization: {
+      timeFormatter: (time) => {
+        const d = new Date(time * 1000);
+        return d.toLocaleString(undefined, {
+          month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: false,
+        });
+      },
+    },
     timeScale: {
       borderColor: '#2a2620',
       timeVisible: true,
       secondsVisible: false,
+      tickMarkFormatter: (time, tickMarkType, locale) => {
+        const d = new Date(time * 1000);
+        const tf = state.timeframe;
+        // tickMarkType: 0=Year, 1=Month, 2=DayOfMonth, 3=Time, 4=TimeWithSeconds
+        if (tickMarkType === 0) return d.toLocaleDateString(locale, { year: 'numeric' });
+        if (tickMarkType === 1) return d.toLocaleDateString(locale, { month: 'short' });
+        if (tickMarkType === 2) return d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+        // Time tick: intraday timeframes show HH:MM, longer timeframes prefer date
+        if (tf === '5m' || tf === '1h') {
+          return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+        return d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+      },
     },
     crosshair: {
       mode: 1,
