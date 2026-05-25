@@ -433,6 +433,93 @@ aside.sidebar-right{
   justify-content:flex-end;
 }
 
+/* Alert direction toggle */
+.alert-dir-row{display:flex;gap:6px}
+.alert-dir-btn{
+  flex:1;
+  padding:8px 10px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text-dim);
+  font-family:inherit;
+  font-size:10px;
+  letter-spacing:.5px;
+  cursor:pointer;
+  text-align:left;
+}
+.alert-dir-btn:hover{color:var(--text)}
+.alert-dir-btn.active{
+  color:var(--gold-hi);
+  border-color:var(--gold-dim);
+  background:var(--bg);
+}
+
+/* Alert rows in the journal */
+.alert-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  padding:9px 14px;
+  border-bottom:1px solid var(--border);
+  gap:4px 10px;
+  font-size:11px;
+}
+.alert-row.triggered{background:rgba(212,164,55,0.06)}
+.alert-row .name{
+  font-size:12px;color:var(--text);font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  grid-column:1/2;
+}
+.alert-row .badge{
+  grid-column:2/3;
+  font-size:9px;letter-spacing:1.2px;font-weight:600;
+  padding:2px 6px;border:1px solid;
+  text-align:center;justify-self:end;
+  white-space:nowrap;
+}
+.alert-row .badge.armed{color:var(--text-dim);border-color:var(--border-hi)}
+.alert-row .badge.triggered{color:var(--gold-hi);border-color:var(--gold)}
+.alert-row .cond{
+  grid-column:1/-1;
+  color:var(--text-dim);
+  font-variant-numeric:tabular-nums;
+  font-size:10px;
+}
+.alert-row .cond .price{color:var(--text-mid)}
+.alert-row .cond .now{color:var(--text-mid)}
+.alert-row .note{
+  grid-column:1/-1;
+  color:var(--text-dim);
+  font-size:10px;
+  font-style:italic;
+}
+.alert-row .row-actions{
+  grid-column:1/-1;
+  display:flex;
+  gap:6px;
+  margin-top:4px;
+}
+.alert-row .row-actions button{
+  font-size:9px;letter-spacing:1px;padding:3px 8px;
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border);
+  cursor:pointer;
+}
+.alert-row .row-actions button:hover{color:var(--text);border-color:var(--border-hi)}
+.alert-row .row-actions button.danger:hover{color:var(--loss);border-color:var(--loss)}
+
+/* Triggered badge next to JOURNAL tab title */
+.tab .tab-badge{
+  display:inline-block;
+  margin-left:6px;
+  padding:1px 6px;
+  background:var(--gold);
+  color:#0a0908;
+  font-size:9px;
+  font-weight:700;
+  border-radius:8px;
+  vertical-align:1px;
+}
+
 /* ============ SCREENER ============ */
 .screener-controls{
   padding:12px 14px;
@@ -812,6 +899,7 @@ aside.sidebar-right{
   color:var(--text-dim);
   font-variant-numeric:tabular-nums;
 }
+.stat-sub.warn{color:var(--warn)}
 
 /* ============ TOAST ============ */
 #toast-container{
@@ -1080,6 +1168,7 @@ aside.sidebar-right{
         </div>
         <div class="item-actions">
           <button class="action-btn primary" id="btn-watch">+ WATCH</button>
+          <button class="action-btn" id="btn-alert">⌁ ALERT</button>
           <button class="action-btn" id="btn-wiki">WIKI ↗</button>
         </div>
         <div class="item-stats">
@@ -1114,6 +1203,7 @@ aside.sidebar-right{
               <div class="stat">
                 <div class="stat-label">BUY LIMIT (4H)</div>
                 <div class="stat-value" id="stat-limit">—</div>
+                <div class="stat-sub" id="stat-limit-sub">—</div>
               </div>
               <div class="stat">
                 <div class="stat-label">CAPITAL / CYCLE</div>
@@ -1193,12 +1283,15 @@ aside.sidebar-right{
       <h3>What's here</h3>
       <p><strong>Charts</strong> with candlestick/spread/line views and overlay indicators (SMA, EMA, Bollinger Bands, VWAP) plus separate panes for RSI(14) and MACD. Built on TradingView Lightweight Charts.</p>
       <p><strong>Screener</strong> with five preset profiles plus full custom filters across margin, ROI, volume, and price.</p>
-      <p><strong>Pair finder</strong> for substitute items (bones, logs, ores, herbs, food) with live ratio z-scores. When a pair is at &gt;2σ, the cheap leg is statistically stretched relative to its substitute.</p>
+      <p><strong>Pair finder</strong> for substitute items (bones, logs, ores, herbs, food) with live ratio z-scores. When a pair is at &gt;2σ, the cheap leg is statistically stretched relative to its substitute. Click any pair to enter compare mode (both legs normalized + ratio pane).</p>
       <p><strong>Watchlist</strong> persistent across sessions with z-score and 7d change highlighting.</p>
+      <p><strong>Flip journal</strong> for logging buys/sells with auto-updating open positions, GE-tax-aware unrealized P/L, and a SELL / HOLD / CUT signal derived from net P/L plus chart indicators (RSI, z-score, Bollinger position).</p>
+      <p><strong>Price alerts</strong> on any item — set ASK ≥ price (sell signal) or BID ≤ price (buy signal). Fires a browser notification when triggered.</p>
+      <p><strong>4-hour buy-limit tracker</strong> sums your journal buys per item so you always know how many more of an item you can buy before the limit resets.</p>
       <p><strong>GE tax</strong> built in correctly: 2% rate (since 29 May 2025), 5M gp per-item cap, sub-50gp exempt.</p>
-      
+
       <h3>Data</h3>
-      <p>All prices come live from <code>prices.runescape.wiki/api/v1/osrs</code>, the OSRS Wiki / RuneLite partnership API. Wiki community members trade items and their fills feed the API. No personal data is collected; your watchlist lives in browser storage only.</p>
+      <p>All prices come live from <code>prices.runescape.wiki/api/v1/osrs</code>, the OSRS Wiki / RuneLite partnership API. Wiki community members trade items and their fills feed the API. No personal data is collected; watchlist, journal, and alerts all live in browser storage only.</p>
       
       <h3>Important caveats</h3>
       <p>This is an analysis tool, not financial or game-strategy advice. OSRS markets are subject to dev-blog announcements, polls, and rebalances that can break any statistical assumption overnight. The 2% tax + 5M cap means displayed margins above 250M gp items overstate effective margin; this tool handles the cap correctly. Always verify a thesis before sizing into it.</p>
@@ -1229,6 +1322,34 @@ aside.sidebar-right{
         <div class="flip-actions">
           <button class="action-btn" data-close-modal>CANCEL</button>
           <button class="action-btn primary" id="flip-buy-confirm">LOG BUY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-create-alert">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Create price alert</div>
+      <button class="modal-close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="flip-form">
+        <div class="flip-selected" id="alert-item-info"></div>
+        <label class="flip-label">TRIGGER WHEN</label>
+        <div class="alert-dir-row">
+          <button type="button" class="alert-dir-btn active" data-dir="above">ASK ≥ price (sell signal)</button>
+          <button type="button" class="alert-dir-btn" data-dir="below">BID ≤ price (buy signal)</button>
+        </div>
+        <label class="flip-label">PRICE (gp)</label>
+        <input id="alert-price" type="number" class="flip-input" min="1" placeholder="e.g. 12500" />
+        <label class="flip-label">NOTE (optional)</label>
+        <input id="alert-note" type="text" class="flip-input" placeholder="e.g. take profit at 12.5k" />
+        <div class="flip-summary" id="alert-summary"></div>
+        <div class="flip-actions">
+          <button class="action-btn" data-close-modal>CANCEL</button>
+          <button class="action-btn primary" id="alert-confirm">CREATE ALERT</button>
         </div>
       </div>
     </div>
@@ -1300,6 +1421,9 @@ const state = {
   compareSeries: null,     // { a: ts, b: ts }
   watchlist: [],
   flips: [],
+  alerts: [],
+  flipIndicators: new Map(),       // itemId → { rsi, zScore, bbPos, fetchedAt }
+  flipIndicatorsTimer: null,
   refreshInterval: null,
 };
 
@@ -1789,6 +1913,267 @@ function flipNetTotal(f, fallbackSellPrice = null) {
   return per == null ? null : per * f.qty;
 }
 
+// Buy-limit tracker — sums journal buys in the last 4h for an item.
+// OSRS uses a 4h rolling window per item. We can only see what the user
+// has logged here, so this is a journal-aware estimate.
+const BUY_LIMIT_WINDOW = 14400; // 4 hours in seconds
+function getBuyLimitState(itemId, item) {
+  const limit = item?.limit || 0;
+  const now = Date.now() / 1000;
+  const cutoff = now - BUY_LIMIT_WINDOW;
+  const buys = state.flips
+    .filter(f => f.itemId === itemId && f.buyTime >= cutoff);
+  const used = buys.reduce((s, f) => s + f.qty, 0);
+  const available = Math.max(0, limit - used);
+  const oldestBuyTime = buys.length ? Math.min(...buys.map(f => f.buyTime)) : null;
+  const resetAt = oldestBuyTime ? oldestBuyTime + BUY_LIMIT_WINDOW : null;
+  return { limit, used, available, oldestBuyTime, resetAt };
+}
+
+function fmtDurationShort(seconds) {
+  if (seconds == null || seconds <= 0) return 'now';
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  return rm ? `${h}h ${rm}m` : `${h}h`;
+}
+
+// =============================================================================
+// PRICE ALERTS
+// =============================================================================
+function alertUid() {
+  return 'a_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+}
+
+async function persistAlerts() {
+  await storageSet('alerts', state.alerts);
+}
+
+async function addAlert({ itemId, itemName, direction, price, note }) {
+  const a = {
+    id: alertUid(),
+    itemId,
+    itemName,
+    direction,            // 'above' (ask >= price) or 'below' (bid <= price)
+    price,
+    note: note || '',
+    createdAt: Math.floor(Date.now() / 1000),
+    triggered: false,
+    triggeredAt: null,
+    dismissed: false,
+  };
+  state.alerts.push(a);
+  await persistAlerts();
+  requestNotifyPermission();
+  checkAlerts();
+  updateJournalTabBadge();
+  if (document.getElementById('tab-journal').classList.contains('active')) renderJournal();
+  return a;
+}
+
+async function deleteAlert(id) {
+  state.alerts = state.alerts.filter(a => a.id !== id);
+  await persistAlerts();
+  renderJournal();
+  updateJournalTabBadge();
+}
+
+async function dismissAlert(id) {
+  const a = state.alerts.find(x => x.id === id);
+  if (!a) return;
+  a.dismissed = true;
+  await persistAlerts();
+  renderJournal();
+  updateJournalTabBadge();
+}
+
+function alertConditionMet(a, row) {
+  if (!row) return false;
+  if (a.direction === 'above') return row.high != null && row.high >= a.price;
+  if (a.direction === 'below') return row.low != null && row.low <= a.price;
+  return false;
+}
+
+function checkAlerts() {
+  let firedCount = 0;
+  for (const a of state.alerts) {
+    if (a.triggered) continue;
+    const row = state.marketTable.find(r => r.id === a.itemId);
+    if (!row) continue;
+    if (alertConditionMet(a, row)) {
+      a.triggered = true;
+      a.triggeredAt = Math.floor(Date.now() / 1000);
+      a.dismissed = false;
+      const dirText = a.direction === 'above' ? 'ASK ≥' : 'BID ≤';
+      const refPrice = a.direction === 'above' ? row.high : row.low;
+      const body = `${a.itemName} · ${dirText} ${fmtGp(a.price)} (now ${fmtGp(refPrice)})`;
+      notify('Price alert', body);
+      toast(`Alert: ${body}`, 'success');
+      firedCount++;
+    }
+  }
+  if (firedCount > 0) {
+    persistAlerts();
+    if (document.getElementById('tab-journal').classList.contains('active')) renderJournal();
+    updateJournalTabBadge();
+  }
+}
+
+let _notifyPermissionRequested = false;
+function requestNotifyPermission() {
+  if (typeof Notification === 'undefined') return;
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') return;
+  if (_notifyPermissionRequested) return;
+  _notifyPermissionRequested = true;
+  try { Notification.requestPermission(); } catch {}
+}
+
+function notify(title, body) {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification(title, { body, silent: false }); return; } catch {}
+  }
+  // Falls back to toast if notifications aren't available
+}
+
+function updateJournalTabBadge() {
+  const tab = document.querySelector('.tab[data-tab="journal"]');
+  if (!tab) return;
+  const pending = state.alerts.filter(a => a.triggered && !a.dismissed).length;
+  tab.querySelectorAll('.tab-badge').forEach(b => b.remove());
+  if (pending > 0) {
+    const b = document.createElement('span');
+    b.className = 'tab-badge';
+    b.textContent = pending;
+    tab.appendChild(b);
+  }
+}
+
+// ---- Create-alert modal ----
+let _alertModalState = { itemId: null, itemName: null, direction: 'above' };
+
+function openCreateAlertModal() {
+  if (!state.selectedId || !state.selectedItem) {
+    toast('Select an item first', 'error');
+    return;
+  }
+  const row = state.marketTable.find(r => r.id === state.selectedId);
+  _alertModalState = {
+    itemId: state.selectedId,
+    itemName: state.selectedItem.name,
+    direction: 'above',
+  };
+  document.getElementById('alert-item-info').innerHTML =
+    `<strong>${escapeHtml(state.selectedItem.name)}</strong>
+     <span class="meta">ask ${row?.high ? fmtGp(row.high) : '—'} · bid ${row?.low ? fmtGp(row.low) : '—'}</span>`;
+  document.querySelectorAll('.alert-dir-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.dir === 'above');
+  });
+  document.getElementById('alert-price').value = '';
+  document.getElementById('alert-note').value = '';
+  document.getElementById('alert-summary').innerHTML = '';
+  document.getElementById('modal-create-alert').classList.add('open');
+  setTimeout(() => document.getElementById('alert-price').focus(), 30);
+}
+
+function updateAlertSummary() {
+  const el = document.getElementById('alert-summary');
+  const price = parseFloat(document.getElementById('alert-price').value);
+  if (!_alertModalState.itemId || !price) { el.innerHTML = ''; return; }
+  const row = state.marketTable.find(r => r.id === _alertModalState.itemId);
+  const cur = _alertModalState.direction === 'above' ? row?.high : row?.low;
+  if (cur == null) { el.innerHTML = '<div>No live price yet.</div>'; return; }
+  const diff = price - cur;
+  const diffPct = (diff / cur) * 100;
+  const arrow = diff >= 0 ? '↑' : '↓';
+  const distance = `${arrow} ${fmtGp(Math.abs(diff))} (${fmtPct(Math.abs(diffPct), 2)}) from now`;
+  const armed = (_alertModalState.direction === 'above' && cur >= price)
+             || (_alertModalState.direction === 'below' && cur <= price);
+  el.innerHTML = `
+    <div><span class="lbl">CURRENT:</span> ${fmtGp(cur)}</div>
+    <div><span class="lbl">TARGET:</span> ${fmtGp(price)} ${distance}</div>
+    ${armed ? '<div class="loss">⚠ would trigger immediately</div>' : ''}
+  `;
+}
+
+function setupCreateAlertForm() {
+  document.querySelectorAll('.alert-dir-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      _alertModalState.direction = b.dataset.dir;
+      document.querySelectorAll('.alert-dir-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      updateAlertSummary();
+    });
+  });
+  document.getElementById('alert-price').addEventListener('input', updateAlertSummary);
+  document.getElementById('alert-confirm').addEventListener('click', async () => {
+    const price = parseFloat(document.getElementById('alert-price').value);
+    if (!price || price <= 0) { toast('Enter a price', 'error'); return; }
+    if (!_alertModalState.itemId) { toast('No item selected', 'error'); return; }
+    await addAlert({
+      itemId: _alertModalState.itemId,
+      itemName: _alertModalState.itemName,
+      direction: _alertModalState.direction,
+      price,
+      note: document.getElementById('alert-note').value.trim(),
+    });
+    document.getElementById('modal-create-alert').classList.remove('open');
+    toast('Alert created', 'success');
+  });
+}
+
+// =============================================================================
+// FLIP INDICATORS (RSI, z-score, BB) fetched per open-position item
+// =============================================================================
+const FLIP_IND_TTL = 5 * 60 * 1000; // 5 minutes
+
+function computeFlipIndicatorsFromTs(ts) {
+  const data = buildSeriesData(ts);
+  if (data.length < 30) return null;
+  const mids = data.map(d => d.mid).filter(v => v != null);
+  if (mids.length < 30) return null;
+  const rsiArr = rsi(mids, 14);
+  const lastRsi = rsiArr[rsiArr.length - 1];
+  const z = zScore(mids, Math.min(60, mids.length));
+  const bb = bollinger(mids, 20, 2);
+  const i = mids.length - 1;
+  const upper = bb.upper[i], lower = bb.lower[i], middle = bb.middle[i];
+  let bbPos = null;
+  if (upper != null && lower != null && middle != null && upper !== middle) {
+    bbPos = (mids[i] - middle) / (upper - middle);
+  }
+  return {
+    rsi: lastRsi == null ? null : lastRsi,
+    zScore: z,
+    bbPos,
+    fetchedAt: Date.now(),
+  };
+}
+
+async function refreshFlipIndicators({ force = false } = {}) {
+  const openIds = Array.from(new Set(
+    state.flips.filter(f => f.status === 'open').map(f => f.itemId)
+  ));
+  if (!openIds.length) return;
+  const now = Date.now();
+  const stale = openIds.filter(id => {
+    const cached = state.flipIndicators.get(id);
+    return force || !cached || (now - cached.fetchedAt) > FLIP_IND_TTL;
+  });
+  if (!stale.length) return;
+  // Sequential to avoid hammering the API
+  for (const id of stale) {
+    try {
+      const ts = await fetchTimeseries(id, '1h');
+      const ind = computeFlipIndicatorsFromTs(ts);
+      if (ind) state.flipIndicators.set(id, ind);
+    } catch (e) {
+      console.warn('Indicator fetch failed', id, e);
+    }
+  }
+  if (document.getElementById('tab-journal').classList.contains('active')) renderJournal();
+}
+
 function signalForOpen(f) {
   const row = state.marketTable.find(r => r.id === f.itemId);
   if (!row || row.low == null) return { tier: 'unknown', text: 'No live bid' };
@@ -1796,16 +2181,50 @@ function signalForOpen(f) {
   const tax = geTax(bid, f.itemId);
   const netPerUnit = (bid - tax) - f.buyPrice;
   const netPct = (netPerUnit / f.buyPrice) * 100;
-  const avg24 = (row.avgHigh24h && row.avgLow24h) ? (row.avgHigh24h + row.avgLow24h) / 2 : null;
-  const elevated = avg24 ? bid > avg24 * 1.02 : false;
-  const depressed = avg24 ? bid < avg24 * 0.98 : false;
-  if (netPct >= 8) return { tier: 'sell', text: `+${netPct.toFixed(1)}% net — strong gain, take profit` };
-  if (netPct >= 3 && elevated) return { tier: 'sell', text: `+${netPct.toFixed(1)}% & above 24h avg — sell into strength` };
-  if (netPct <= -10) return { tier: 'cut', text: `${netPct.toFixed(1)}% — consider cutting` };
-  if (netPct <= -5 && depressed) return { tier: 'hold', text: `${netPct.toFixed(1)}% — price depressed, may rebound` };
-  if (netPct >= 2) return { tier: 'hold', text: `+${netPct.toFixed(1)}% — small gain, hold` };
-  if (netPct >= -2) return { tier: 'hold', text: `${netPct.toFixed(2)}% — neutral` };
-  return { tier: 'hold', text: `${netPct.toFixed(1)}% — minor drawdown` };
+  const ind = state.flipIndicators.get(f.itemId);
+
+  let tier = 'hold';
+  const reasons = [];
+  reasons.push(`${netPct >= 0 ? '+' : ''}${netPct.toFixed(1)}% net`);
+
+  // P/L-based base
+  if (netPct >= 8) tier = 'sell';
+  else if (netPct <= -10) tier = 'cut';
+
+  // Indicator-driven adjustments
+  if (ind) {
+    if (ind.rsi != null && ind.rsi >= 70 && netPct >= 2) {
+      if (tier === 'hold') tier = 'sell';
+      reasons.push(`RSI ${ind.rsi.toFixed(0)} overbought`);
+    } else if (ind.rsi != null && ind.rsi <= 30) {
+      if (tier === 'cut') reasons.push(`RSI ${ind.rsi.toFixed(0)} oversold — may bounce`);
+      else if (netPct < 0) reasons.push(`RSI ${ind.rsi.toFixed(0)} oversold`);
+    }
+    if (ind.zScore != null && ind.zScore >= 2 && netPct > 0) {
+      if (tier === 'hold') tier = 'sell';
+      reasons.push(`z=+${ind.zScore.toFixed(1)}σ stretched`);
+    } else if (ind.zScore != null && ind.zScore <= -2) {
+      reasons.push(`z=${ind.zScore.toFixed(1)}σ extreme low`);
+    }
+    if (ind.bbPos != null && ind.bbPos >= 1 && netPct > 0) {
+      if (tier === 'hold') tier = 'sell';
+      reasons.push('above BB upper');
+    } else if (ind.bbPos != null && ind.bbPos <= -1) {
+      reasons.push('below BB lower');
+    }
+  } else {
+    // Fallback: current bid vs 24h average
+    const avg24 = (row.avgHigh24h && row.avgLow24h) ? (row.avgHigh24h + row.avgLow24h) / 2 : null;
+    if (avg24 && bid > avg24 * 1.02 && netPct >= 3) {
+      if (tier === 'hold') tier = 'sell';
+      reasons.push('above 24h avg');
+    } else if (avg24 && bid < avg24 * 0.98 && netPct < 0) {
+      reasons.push('below 24h avg — may rebound');
+    }
+  }
+
+  // If nothing else fired, leave as neutral hold
+  return { tier, text: reasons.join(' · ') };
 }
 
 function renderJournal() {
@@ -1913,7 +2332,42 @@ function renderJournal() {
     }
   }
 
-  container.innerHTML = summary + openHtml + closedHtml;
+  // Alerts section
+  const activeAlerts = state.alerts.filter(a => !a.triggered || !a.dismissed);
+  const triggeredPending = activeAlerts.filter(a => a.triggered).length;
+  let alertsHtml = '';
+  if (activeAlerts.length) {
+    alertsHtml = `<div class="journal-section-head">
+      ALERTS <span class="count">${activeAlerts.length}${triggeredPending ? ` · ${triggeredPending} triggered` : ''}</span>
+    </div>`;
+    // Triggered first, then armed
+    const sorted = [...activeAlerts].sort((a, b) => (b.triggered ? 1 : 0) - (a.triggered ? 1 : 0));
+    alertsHtml += sorted.map(a => {
+      const row = state.marketTable.find(r => r.id === a.itemId);
+      const cur = a.direction === 'above' ? row?.high : row?.low;
+      const dirSym = a.direction === 'above' ? '≥' : '≤';
+      const dirLabel = a.direction === 'above' ? 'ASK' : 'BID';
+      const curStr = cur != null ? fmtGp(cur) : '—';
+      const badge = a.triggered ? 'triggered' : 'armed';
+      const actions = a.triggered
+        ? `<button data-flip-open="${a.itemId}">OPEN CHART</button>
+           <button data-alert-dismiss="${a.id}">DISMISS</button>
+           <button class="danger" data-alert-delete="${a.id}">DELETE</button>`
+        : `<button data-flip-open="${a.itemId}">OPEN CHART</button>
+           <button class="danger" data-alert-delete="${a.id}">DELETE</button>`;
+      return `
+        <div class="alert-row ${a.triggered ? 'triggered' : ''}">
+          <div class="name" title="${escapeHtml(a.itemName)}">${escapeHtml(a.itemName)}</div>
+          <div class="badge ${badge}">${badge.toUpperCase()}</div>
+          <div class="cond">${dirLabel} ${dirSym} <span class="price">${fmtGp(a.price)}</span> · now <span class="now">${curStr}</span></div>
+          ${a.note ? `<div class="note">${escapeHtml(a.note)}</div>` : ''}
+          <div class="row-actions">${actions}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  container.innerHTML = summary + alertsHtml + openHtml + closedHtml;
 
   // Wire up
   const btnLog = document.getElementById('btn-log-buy');
@@ -1924,6 +2378,10 @@ function renderJournal() {
     b.addEventListener('click', () => openCloseFlipModal(b.dataset.flipClose)));
   container.querySelectorAll('[data-flip-delete]').forEach(b =>
     b.addEventListener('click', () => deleteFlip(b.dataset.flipDelete)));
+  container.querySelectorAll('[data-alert-dismiss]').forEach(b =>
+    b.addEventListener('click', () => dismissAlert(b.dataset.alertDismiss)));
+  container.querySelectorAll('[data-alert-delete]').forEach(b =>
+    b.addEventListener('click', () => deleteAlert(b.dataset.alertDelete)));
 }
 
 async function deleteFlip(id) {
@@ -1953,9 +2411,6 @@ function updateLogBuySummary() {
   const el = document.getElementById('flip-buy-summary');
   if (!_logBuyState.itemId || !qty || !price) { el.innerHTML = ''; return; }
   const row = state.marketTable.find(r => r.id === _logBuyState.itemId);
-  const limit = row?.limit;
-  const limitWarn = limit && qty > limit
-    ? `<div class="loss">⚠ qty exceeds 4h buy limit (${fmtNum(limit, 0)})</div>` : '';
   const cost = qty * price;
   const bid = row?.low;
   const projNet = bid != null ? ((bid - geTax(bid, _logBuyState.itemId)) - price) * qty : null;
@@ -1963,10 +2418,23 @@ function updateLogBuySummary() {
   const projStr = projNet != null
     ? `<span class="${projCls}">${projNet >= 0 ? '+' : ''}${fmtGp(projNet)}</span> at current bid`
     : '—';
+  const bl = getBuyLimitState(_logBuyState.itemId, row);
+  let limitLine = '';
+  if (bl.limit) {
+    if (qty > bl.available && bl.used > 0) {
+      limitLine = `<div class="loss">⚠ exceeds remaining 4h limit (${bl.available.toLocaleString()} of ${bl.limit.toLocaleString()} left)</div>`;
+    } else if (qty > bl.limit) {
+      limitLine = `<div class="loss">⚠ qty exceeds 4h buy limit (${bl.limit.toLocaleString()})</div>`;
+    } else if (bl.used > 0) {
+      limitLine = `<div><span class="lbl">4H LIMIT:</span> ${bl.available.toLocaleString()} of ${bl.limit.toLocaleString()} remaining</div>`;
+    } else {
+      limitLine = `<div><span class="lbl">4H LIMIT:</span> ${bl.limit.toLocaleString()}</div>`;
+    }
+  }
   el.innerHTML = `
     <div><span class="lbl">CAPITAL:</span> ${fmtGpFull(cost)}</div>
     <div><span class="lbl">IF SOLD NOW:</span> ${projStr}</div>
-    ${limitWarn}
+    ${limitLine}
   `;
 }
 
@@ -2696,7 +3164,25 @@ function updateItemInfo() {
   document.getElementById('stat-roi').textContent = row.roi != null ? fmtNum(row.roi, 2) + '% net ROI' : '—';
   
   // Capacity
-  document.getElementById('stat-limit').textContent = row.limit ? row.limit.toLocaleString() : '—';
+  const bl = getBuyLimitState(item.id, row);
+  if (bl.limit) {
+    document.getElementById('stat-limit').textContent =
+      bl.used > 0
+        ? `${bl.available.toLocaleString()} / ${bl.limit.toLocaleString()}`
+        : bl.limit.toLocaleString();
+    const sub = document.getElementById('stat-limit-sub');
+    if (bl.used > 0) {
+      const resetIn = bl.resetAt - Date.now() / 1000;
+      sub.textContent = `${bl.used.toLocaleString()} bought · first reset ${fmtDurationShort(resetIn)}`;
+      sub.className = bl.available === 0 ? 'stat-sub warn' : 'stat-sub';
+    } else {
+      sub.textContent = 'available';
+      sub.className = 'stat-sub';
+    }
+  } else {
+    document.getElementById('stat-limit').textContent = '—';
+    document.getElementById('stat-limit-sub').textContent = '—';
+  }
   document.getElementById('stat-capital').textContent = fmtGpFull(row.capitalCycle);
   document.getElementById('stat-profit-cycle').textContent = fmtGpFull(row.profitCycle);
   document.getElementById('stat-profit-hr').textContent = fmtGpFull(row.profitHr) + '/hr';
@@ -2832,6 +3318,7 @@ function setupTabs() {
       }
       if (tab.dataset.tab === 'journal') {
         renderJournal();
+        refreshFlipIndicators();
       }
     });
   });
@@ -2842,6 +3329,9 @@ function setupItemActions() {
     if (!state.selectedId) return;
     if (state.watchlist.includes(state.selectedId)) removeFromWatchlist(state.selectedId);
     else addToWatchlist(state.selectedId);
+  });
+  document.getElementById('btn-alert').addEventListener('click', () => {
+    openCreateAlertModal();
   });
   document.getElementById('btn-wiki').addEventListener('click', () => {
     if (!state.selectedItem) return;
@@ -2909,6 +3399,7 @@ async function boot() {
   // Load persisted state
   state.watchlist = await storageGet('watchlist', []);
   state.flips = await storageGet('flips', []);
+  state.alerts = await storageGet('alerts', []);
   const savedIndicators = await storageGet('indicators', null);
   if (savedIndicators) state.indicators = { ...state.indicators, ...savedIndicators };
   const savedPanes = await storageGet('panes', null);
@@ -2938,6 +3429,7 @@ async function boot() {
   setupModal();
   setupLogBuyForm();
   setupCloseFlipForm();
+  setupCreateAlertForm();
   
   // Fetch data
   try {
@@ -2960,7 +3452,9 @@ async function boot() {
     renderWatchlist();
     applyScreenerPreset(document.getElementById('screener-profile').value);
     renderScreener();
-    
+    checkAlerts();
+    updateJournalTabBadge();
+
     // Periodic refresh of latest prices every 60s
     setInterval(refreshPrices, 60000);
   } catch (err) {
@@ -2978,7 +3472,11 @@ async function refreshPrices() {
     state.marketTable = buildMarketTable();
     renderWatchlist();
     renderScreener();
-    if (document.getElementById('tab-journal').classList.contains('active')) renderJournal();
+    checkAlerts();
+    if (document.getElementById('tab-journal').classList.contains('active')) {
+      renderJournal();
+      refreshFlipIndicators();
+    }
     if (state.selectedId) updateItemInfo();
     document.getElementById('status-text').textContent = 'LIVE · UPDATED ' + new Date().toLocaleTimeString();
   } catch (e) {
