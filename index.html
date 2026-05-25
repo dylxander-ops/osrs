@@ -431,7 +431,8 @@ aside.sidebar-right{
   overflow:hidden;
 }
 .chart-pane{
-  position:relative;
+  position:absolute;
+  inset:0;
   border-bottom:1px solid var(--border);
 }
 .chart-pane:last-child{border-bottom:none}
@@ -1638,6 +1639,7 @@ function createMainChart() {
     },
     handleScroll: true,
     handleScale: true,
+    autoSize: true,
   };
   
   const main = LightweightCharts.createChart(document.getElementById('chart-main'), opts);
@@ -1675,21 +1677,6 @@ function createMainChart() {
     }
   });
   Object.values(charts).forEach(syncCrosshair);
-  
-  // Resize observer
-  const resizeAll = () => {
-    const el = document.getElementById('chart-main');
-    if (!el) return;
-    const w = el.parentElement.clientWidth;
-    if (charts.main) charts.main.applyOptions({ width: w });
-    if (charts.vol) charts.vol.applyOptions({ width: w });
-    if (charts.rsi) charts.rsi.applyOptions({ width: w });
-    if (charts.macd) charts.macd.applyOptions({ width: w });
-  };
-  resizeAll();
-  if (window.__chartResize) window.removeEventListener('resize', window.__chartResize);
-  window.__chartResize = resizeAll;
-  window.addEventListener('resize', resizeAll);
 }
 
 function buildSeriesData(ts) {
@@ -2053,8 +2040,6 @@ function setupToolbar() {
       state.panes[k] = !state.panes[k];
       btn.classList.toggle('active', state.panes[k]);
       document.getElementById('chart-pane').classList.toggle(k + '-active', state.panes[k]);
-      // Trigger reflow of charts
-      if (window.__chartResize) window.__chartResize();
       renderChart();
       storageSet('panes', state.panes);
     });
